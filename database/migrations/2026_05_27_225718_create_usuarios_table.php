@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('password_hash', 255)->comment('Contraseña encriptada para seguridad');
             $table->boolean('estado_activo')->default(true)->comment('Indica si el usuario está habilitado o suspendido');
             
-            // Llave foránea limpia sin comentarios
+            // Llave foránea
             $table->unsignedBigInteger('id_rol')->nullable();
             $table->foreign('id_rol')->references('id_rol')->on('roles')->onDelete('set null');
             
