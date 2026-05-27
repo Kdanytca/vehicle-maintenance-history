@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre_rol')->unique()->comment('Nombre único del rol');
-            $table->text('descripcion')->nullable()->comment('Descripción opcional del rol');
+            $table->id('id_rol');
+            $table->string('nombre_rol', 50)->comment('Nombre del rol administrativo');
+            $table->string('descripcion', 255)->nullable()->comment('Detalles sobre las funciones del rol');
             $table->timestamps();
         });
     }

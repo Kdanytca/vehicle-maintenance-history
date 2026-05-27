@@ -9,13 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('proveedores', function (Blueprint $table) {
-            $table->id();
-
-            $table->string('nombre')->comment('Nombre del proveedor');
-            $table->string('correo')->nullable()->comment('Correo electrónico de contacto');
-            $table->string('telefono')->nullable()->comment('Número de teléfono de contacto');
-            $table->text('direccion')->nullable()->comment('Dirección del proveedor');
-
+            $table->id('id_proveedor');
+            $table->string('nombre_proveedor', 100)->comment('Nombre o razón social del proveedor');
+            $table->string('contacto', 100)->nullable()->comment('Nombre de la persona de contacto');
+            $table->string('telefono', 20)->nullable()->comment('Teléfono de atención del proveedor');
             $table->timestamps();
         });
     }
