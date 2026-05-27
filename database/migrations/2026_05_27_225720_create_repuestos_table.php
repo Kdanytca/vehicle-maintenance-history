@@ -11,16 +11,13 @@ return new class extends Migration
         Schema::create('repuestos', function (Blueprint $table) {
             $table->id('id_repuesto');
             $table->string('nombre_pieza', 100)->comment('Nombre comercial del repuesto o pieza');
-            $table->string('codigo_pieza', 50)->nullable()->comment('Código de barra o SKU de inventario');
             $table->decimal('costo_unitario', 10, 2)->comment('Precio de costo de la pieza');
-            
-            // Llaves foráneas limpias sin comentarios
+
+            // Llaves foráneas
             $table->unsignedBigInteger('id_mantenimiento')->nullable();
-            $table->unsignedBigInteger('id_proveedor')->nullable();
             $table->unsignedBigInteger('id_factura')->nullable();
 
             $table->foreign('id_mantenimiento')->references('id_mantenimiento')->on('mantenimientos')->onDelete('set null');
-            $table->foreign('id_proveedor')->references('id_proveedor')->on('proveedores')->onDelete('set null');
             $table->foreign('id_factura')->references('id_factura')->on('facturas')->onDelete('set null');
 
             $table->timestamps();

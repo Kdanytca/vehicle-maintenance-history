@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('modelo', 50)->comment('Modelo específico del automóvil');
             $table->integer('anio')->nullable()->comment('Año de fabricación del vehículo');
             
-            // Llave foránea limpia sin comentarios
+            // Llave foránea
             $table->unsignedBigInteger('id_propietario')->nullable();
             $table->foreign('id_propietario')->references('id_propietario')->on('propietarios')->onDelete('set null');
 

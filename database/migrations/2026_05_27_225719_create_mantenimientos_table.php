@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('estado', 20)->default('Pendiente')->comment('Estado: Pendiente, Completado, Cancelado (Permanencia lógica)');
             $table->decimal('costo_mano_obra', 10, 2)->default(0.00)->comment('Costo del servicio técnico prestado');
             
-            // Llave foránea limpia sin comentarios
+            // Llave foránea
             $table->unsignedBigInteger('id_vehiculo')->nullable();
             $table->foreign('id_vehiculo')->references('id_vehiculo')->on('vehiculos')->onDelete('cascade');
 

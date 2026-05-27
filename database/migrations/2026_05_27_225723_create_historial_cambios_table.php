@@ -14,7 +14,7 @@ return new class extends Migration
             $table->text('descripcion_evento')->comment('Detalle del cambio realizado o del fallo detectado');
             $table->string('direccion_ip', 45)->nullable()->comment('IP desde donde se generó el evento de seguridad');
             
-            // Llave foránea limpia sin comentarios
+            // Llave foráneas
             $table->unsignedBigInteger('id_usuario')->nullable();
             $table->foreign('id_usuario')->references('id_usuario')->on('usuarios')->onDelete('set null');
 
