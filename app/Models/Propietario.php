@@ -11,18 +11,9 @@ class Propietario extends Model
     protected $primaryKey = 'id_propietario';
 
     protected $fillable = [
-        'nombre',
-        'documento_identidad',
-        'telefono',
-        'correo'
-    ];
-
-    public function vehiculos()
-    {
-        return $this->hasMany(
-            Vehiculo::class,
-            'id_propietario',
-            'id_propietario'
-        );
-    }
+    'nombre',
+    'documento_identidad',
+    'telefono',
+    'correo'
+];
 }
