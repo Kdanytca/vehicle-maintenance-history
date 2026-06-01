@@ -18,3 +18,12 @@ Route::post('/vehiculos', [VehiculoController::class, 'store']);
 
 Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda']);
 Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar']);
+
+/*
+|--------------------------------------------------------------------------
+| PBI #6 - Reporte de mantenimientos por placa
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/reportes/placa', [VehiculoController::class, 'formReporte']);
+Route::get('/reportes/placa/buscar', [VehiculoController::class, 'reportePorPlaca']);
