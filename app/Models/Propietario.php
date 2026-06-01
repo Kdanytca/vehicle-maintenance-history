@@ -11,8 +11,9 @@ class Propietario extends Model
     protected $primaryKey = 'id_propietario';
 
     protected $fillable = [
-        'nombre',
-        'telefono',
-        'correo'
-    ];
+    'nombre',
+    'documento_identidad',
+    'telefono',
+    'correo'
+];
 }
