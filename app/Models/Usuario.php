@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class Usuario extends Authenticatable
+{
+    protected $table = 'usuarios';
+    protected $primaryKey = 'id_usuario'; // <-- Indicas que tu PK es id_usuario
+    protected $rememberTokenName = 'remember_token';
+
+    // Indica explícitamente que tu ID es un entero autoincrementable
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    protected $fillable = [
+        'username',
+        'password_hash',
+        'estado_activo',
+        'id_rol',
+    ];
+
+    protected $hidden = [
+        'password_hash',
+    ];
+
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
+    // 1. Esto le dice a Laravel qué NOMBRE tiene la columna de la llave primaria
+    public function getAuthIdentifierName()
+    {
+        return 'id_usuario';
+    }
+
+    // 2. ¡AGREGA ESTO! Esto le devuelve a Laravel el VALOR real del ID del usuario activo
+    public function getAuthIdentifier()
+    {
+        return $this->getAttribute($this->getAuthIdentifierName());
+    }
+
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class, 'id_rol', 'id_rol');
+    }
+}
