@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ControllerLogin;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\MantenimientoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -60,3 +61,8 @@ Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar'])->name('ve
 Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
 Route::get('/vehiculos/crear', [VehiculoController::class, 'create'])->name('vehiculos.create');
 Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
+
+
+// CRUD METENIMIENTO
+// Módulo de mantenimientos
+Route::resource('mantenimientos', MantenimientoController::class);
