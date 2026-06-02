@@ -22,7 +22,6 @@
                     <th class="p-4">ID</th>
                     <th class="p-4">Fecha</th>
                     <th class="p-4">Descripción</th>
-                    <th class="p-4">Mecánico</th>
                     <th class="p-4">Estado</th>
                     <th class="p-4">Vehículo</th>
                     <th class="p-4 text-right">Acciones</th>
@@ -34,7 +33,7 @@
                     <td class="p-4 font-mono text-xs">{{ $m->id_mantenimiento }}</td>
                     <td class="p-4">{{ $m->fecha_servicio }}</td>
                     <td class="p-4 max-w-xs truncate">{{ $m->descripcion_falla }}</td>
-                    <td class="p-4">{{ $m->mecanico_responsable }}</td>
+        
                     <td class="p-4">
                         <span class="text-xs px-2 py-1 rounded-full 
                             @if($m->estado == 'pendiente') bg-amber-500/10 text-amber-400

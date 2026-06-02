@@ -10,7 +10,6 @@ class Mantenimiento extends Model
     'id_mantenimiento',
     'fecha_servicio',
     'descripcion_falla',
-    'mecanico_responsable',
     'estado',
     'costo_mano_obra',
     'id_vehiculo'
