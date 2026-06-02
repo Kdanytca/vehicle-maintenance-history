@@ -44,7 +44,7 @@
                             {{ $m->estado }}
                         </span>
                     </td>
-                    <td class="p-4">{{ $m->id_vehiculo }}</td>
+                    <td class="p-4">{{ $m->vehiculo->placa ?? 'N/A' }}</td>
                     <td class="p-4 text-right space-x-2">
                         <a href="{{ route('mantenimientos.edit', $m->id_mantenimiento) }}" class="inline-block p-1.5 bg-slate-800 hover:bg-sky-500/20 text-sky-400 rounded text-xs">
                             <i class="fa-solid fa-pen"></i>
