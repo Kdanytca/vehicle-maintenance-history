@@ -1,24 +1,29 @@
 <?php
 
 use App\Http\Controllers\ControllerLogin;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VehiculoController;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// ========== RUTAS PÚBLICAS ==========
+// ==========================================
+// 1. MÓDULO DE AUTENTICACIÓN (LOGIN / LOGOUT)
+// ==========================================
 
 // Redirigir la raíz al login
 Route::get('/', function () {
     return redirect('/login');
 });
 
-// Mostrar formulario de login
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+// Rutas de acceso para invitados (No logueados)
+Route::middleware('guest')->group(function () {
+    // Mostrar formulario de login
+    Route::get('/login', function () {
+        return view('auth.login');
+    })->name('login');
 
-// Procesar login (controlador invocable)
-Route::post('/login', ControllerLogin::class);
+    // Procesar login (Controlador invocable)
+    Route::post('/login', ControllerLogin::class);
+});
 
 // Cerrar sesión
 Route::post('/logout', function () {
@@ -27,7 +32,9 @@ Route::post('/logout', function () {
 })->name('logout');
 
 
-// ========== RUTAS PROTEGIDAS (requieren autenticación) ==========
+// ==========================================
+// 2. VISTAS PRINCIPALES POR ROL (PROTEGIDAS)
+// ==========================================
 
 Route::middleware('auth')->group(function () {
 
@@ -40,15 +47,16 @@ Route::middleware('auth')->group(function () {
     })->name('mecanico.mecanico');
 });
 
-Route::get('/vehiculos', [VehiculoController::class, 'index']);
-Route::get('/vehiculos/crear', [VehiculoController::class, 'create']);
-Route::post('/vehiculos', [VehiculoController::class, 'store']);
 
-/*
-|--------------------------------------------------------------------------
-| PBI #5 - Búsqueda de vehículos
-|--------------------------------------------------------------------------
-*/
+// ==========================================
+// 3. MÓDULO DE VEHÍCULOS 
+// ==========================================
 
-Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda']);
-Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar']);
+// PBI #5 - Búsqueda de vehículos (Primero las rutas específicas)
+Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda'])->name('vehiculos.busqueda');
+Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar'])->name('vehiculos.buscar');
+
+// CRUD / Gestión base de vehículos
+Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
+Route::get('/vehiculos/crear', [VehiculoController::class, 'create'])->name('vehiculos.create');
+Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
