@@ -58,6 +58,36 @@ Route::middleware('auth')->group(function () {
     })->name('mecanico.mecanico');
 });
 
+// ==========================================
+// MODULO DE GESTIÓN DE USUARIOS (SOLO ADMIN)
+// ==========================================
+
+Route::middleware(['auth'])->prefix('admin')->name('usuarios.')->group(function () {
+    // Listar usuarios
+    Route::get('/usuarios', \App\Http\Controllers\Usuarios\ListarUsuariosController::class)->name('index');
+    // Mostrar formulario de creacion
+    Route::get('/usuarios/crear', function () {
+        $roles = \App\Models\Rol::all();
+        return view('usuarios.create', compact('roles'));
+    })->name('create');
+
+    // Guardar nuevo usuario
+    Route::post('/usuarios', \App\Http\Controllers\Usuarios\CrearUsuarioController::class)->name('store');
+
+    // Mostrar formulario de edicion
+    Route::get('/usuarios/{id}/editar', function ($id) {
+        $usuario = \App\Models\Usuario::findOrFail($id);
+        $roles = \App\Models\Rol::all();
+        return view('usuarios.edit', compact('usuario', 'roles'));
+    })->name('edit');
+
+    // Actualizar usuario 
+    Route::put('/usuarios/{id}', \App\Http\Controllers\Usuarios\EditarUsuarioController::class) ->name('update');
+
+    // Deshabilitar usuario 
+    Route::delete('/usuarios/{id}', \App\Http\Controllers\Usuarios\EliminarUsuarioController::class)
+        ->name('destroy');
+});
 
 // ==========================================
 // 3. MÓDULO DE VEHÍCULOS 
