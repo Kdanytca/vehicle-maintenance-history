@@ -17,4 +17,13 @@ class Vehiculo extends Model
         'anio',
         'id_propietario'
     ];
+
+    public function propietario()
+    {
+        return $this->belongsTo(
+            Propietario::class,
+            'id_propietario',
+            'id_propietario'
+        );
+    }
 }
