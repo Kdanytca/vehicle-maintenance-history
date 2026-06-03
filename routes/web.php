@@ -25,6 +25,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', ControllerLogin::class);
 });
 
+Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda']);
+Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar']);
+
+/*
+|--------------------------------------------------------------------------
+| PBI #6 - Reporte de mantenimientos por placa
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/reportes/placa', [VehiculoController::class, 'formReporte']);
+Route::get('/reportes/placa/buscar', [VehiculoController::class, 'reportePorPlaca']);
 // Cerrar sesión
 Route::post('/logout', function () {
     Auth::logout();
