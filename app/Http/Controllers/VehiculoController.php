@@ -58,8 +58,8 @@ class VehiculoController extends Controller
         $vehiculos = Vehiculo::where('placa', 'like', '%' . $termino . '%')
             ->orWhereIn('id_propietario', function ($query) use ($termino) {
                 $query->select('id_propietario')
-                      ->from('propietarios')
-                      ->where('nombre', 'like', '%' . $termino . '%');
+                    ->from('propietarios')
+                    ->where('nombre', 'like', '%' . $termino . '%');
             })
             ->get();
 
@@ -83,7 +83,9 @@ class VehiculoController extends Controller
             'placa' => 'required'
         ]);
 
-        $vehiculo = Vehiculo::where('placa', $request->placa)->first();
+        $placa = trim($request->placa);
+
+        $vehiculo = Vehiculo::where('placa', $placa)->first();
 
         if (!$vehiculo) {
             return view('vehiculos.reporte', [
@@ -94,7 +96,9 @@ class VehiculoController extends Controller
         $mantenimientos = Mantenimiento::where(
             'id_vehiculo',
             $vehiculo->id_vehiculo
-        )->orderBy('fecha_servicio', 'asc')->get();
+        )
+        ->orderBy('fecha_servicio', 'asc')
+        ->get();
 
         if ($mantenimientos->isEmpty()) {
             return view('vehiculos.reporte', [
