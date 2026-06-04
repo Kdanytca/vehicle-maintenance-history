@@ -36,4 +36,27 @@ class MantenimientoController extends Controller
         return redirect()->route('mantenimientos.index')
             ->with('success', 'Mantenimiento registrado exitosamente.');
     }
+
+    public function edit($id)
+{
+    $mantenimiento = Mantenimiento::findOrFail($id);
+    return view('mantenimientos.edit', compact('mantenimiento'));
+}
+
+    public function update(Request $request, $id)
+{
+    $request->validate([
+        'fecha_servicio' => 'required|date',
+        'descripcion_falla' => 'required|string',
+        'estado' => 'required|string',
+        'costo_mano_obra' => 'nullable|numeric',
+        'id_vehiculo' => 'required|exists:vehiculos,id_vehiculo'
+    ]);
+
+    $mantenimiento = Mantenimiento::findOrFail($id);
+    $mantenimiento->update($request->all());
+
+    return redirect()->route('mantenimientos.index')
+        ->with('success', 'Mantenimiento actualizado exitosamente.');
+}
 }
