@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vehiculo;
 use App\Models\Propietario;
+use App\Models\Mantenimiento;
 use Illuminate\Http\Request;
 
 class VehiculoController extends Controller
@@ -57,11 +58,57 @@ class VehiculoController extends Controller
         $vehiculos = Vehiculo::where('placa', 'like', '%' . $termino . '%')
             ->orWhereIn('id_propietario', function ($query) use ($termino) {
                 $query->select('id_propietario')
-                      ->from('propietarios')
-                      ->where('nombre', 'like', '%' . $termino . '%');
+                    ->from('propietarios')
+                    ->where('nombre', 'like', '%' . $termino . '%');
             })
             ->get();
 
         return view('vehiculos.busqueda', compact('vehiculos'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PBI #6 - Reporte por placa
+    |--------------------------------------------------------------------------
+    */
+
+    public function formReporte()
+    {
+        return view('vehiculos.reporte');
+    }
+
+    public function reportePorPlaca(Request $request)
+    {
+        $request->validate([
+            'placa' => 'required'
+        ]);
+
+        $placa = trim($request->placa);
+
+        $vehiculo = Vehiculo::where('placa', $placa)->first();
+
+        if (!$vehiculo) {
+            return view('vehiculos.reporte', [
+                'mensaje' => 'La placa ingresada no existe.'
+            ]);
+        }
+
+        $mantenimientos = Mantenimiento::where(
+            'id_vehiculo',
+            $vehiculo->id_vehiculo
+        )
+        ->orderBy('fecha_servicio', 'asc')
+        ->get();
+
+        if ($mantenimientos->isEmpty()) {
+            return view('vehiculos.reporte', [
+                'mensaje' => 'No existen mantenimientos para esta placa.'
+            ]);
+        }
+
+        return view('vehiculos.reporte', compact(
+            'vehiculo',
+            'mantenimientos'
+        ));
     }
 }
