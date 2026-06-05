@@ -64,6 +64,7 @@ class RepuestoController extends BaseController
                 'id_proveedor' => null // <--- CAMBIA EL 1 POR null AQUÍ
             ]);
 
+
             return response()->json([
                 'success' => true,
                 'message' => '¡Factura vinculada y stock actualizado exitosamente!',

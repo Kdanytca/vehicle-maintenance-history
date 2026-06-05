@@ -224,6 +224,7 @@
             transitionOut: 'fadeOutUp'
         });
 
+
         function openModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.remove('hidden');
