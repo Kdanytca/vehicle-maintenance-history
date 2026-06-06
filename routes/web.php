@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ControllerLogin;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\MantenimientoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\RepuestoController;
@@ -108,3 +109,7 @@ Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos
 Route::get('/repuestos', [RepuestoController::class, 'index'])->name('repuestos.index');
 Route::post('/repuestos/cargar-pdf', [RepuestoController::class, 'storeFromPdf'])->name('repuestos.storePdf');
 Route::post('/notificaciones/enviar', [RepuestoController::class, 'enviarNotificacion'])->name('notificaciones.enviar');
+// CRUD METENIMIENTO
+// Módulo de mantenimientos
+Route::resource('mantenimientos', MantenimientoController::class);
+
