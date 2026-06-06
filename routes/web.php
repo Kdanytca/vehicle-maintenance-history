@@ -4,6 +4,7 @@ use App\Http\Controllers\ControllerLogin;
 use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\RepuestoController;
 
 // ==========================================
 // 1. MÓDULO DE AUTENTICACIÓN (LOGIN / LOGOUT)
@@ -82,7 +83,7 @@ Route::middleware(['auth'])->prefix('admin')->name('usuarios.')->group(function 
     })->name('edit');
 
     // Actualizar usuario 
-    Route::put('/usuarios/{id}', \App\Http\Controllers\Usuarios\EditarUsuarioController::class) ->name('update');
+    Route::put('/usuarios/{id}', \App\Http\Controllers\Usuarios\EditarUsuarioController::class)->name('update');
 
     // Deshabilitar usuario 
     Route::delete('/usuarios/{id}', \App\Http\Controllers\Usuarios\EliminarUsuarioController::class)
@@ -101,3 +102,9 @@ Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar'])->name('ve
 Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
 Route::get('/vehiculos/crear', [VehiculoController::class, 'create'])->name('vehiculos.create');
 Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
+
+
+
+Route::get('/repuestos', [RepuestoController::class, 'index'])->name('repuestos.index');
+Route::post('/repuestos/cargar-pdf', [RepuestoController::class, 'storeFromPdf'])->name('repuestos.storePdf');
+Route::post('/notificaciones/enviar', [RepuestoController::class, 'enviarNotificacion'])->name('notificaciones.enviar');
