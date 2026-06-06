@@ -59,4 +59,14 @@ class MantenimientoController extends Controller
     return redirect()->route('mantenimientos.index')
         ->with('success', 'Mantenimiento actualizado exitosamente.');
 }
+
+public function destroy($id)
+{
+    $mantenimiento = Mantenimiento::findOrFail($id);
+    $mantenimiento->update(['estado' => 'cancelado']);
+
+    return redirect()->route('mantenimientos.index')
+        ->with('success', 'Mantenimiento cancelado exitosamente.');
+}
+
 }
