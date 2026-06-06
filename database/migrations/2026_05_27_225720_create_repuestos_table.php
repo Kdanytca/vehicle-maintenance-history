@@ -1,5 +1,8 @@
 <?php
 
+// 2026_05_27_225720_create_repuestos_table.php
+
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +16,7 @@ return new class extends Migration
             $table->string('nombre_pieza', 100)->comment('Nombre comercial del repuesto o pieza');
             $table->string('codigo_pieza', 50)->nullable()->comment('Código de barra o SKU de inventario');
             $table->decimal('costo_unitario', 10, 2)->comment('Precio de costo de la pieza');
-            
+
             // Llaves foráneas limpias sin comentarios
             $table->unsignedBigInteger('id_mantenimiento')->nullable();
             $table->unsignedBigInteger('id_factura')->nullable();
