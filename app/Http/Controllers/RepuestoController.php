@@ -60,8 +60,8 @@ class RepuestoController extends BaseController
                 'nombre_pieza' => $nombrePiezaSimulado,
                 'codigo_pieza' => $codigoPiezaSimulado,
                 'costo_unitario' => $costoUnitario,
-                'id_factura' => $factura->id_factura,
-                'id_proveedor' => null // <--- CAMBIA EL 1 POR null AQUÍ
+                'id_factura' => $factura->id_factura
+                //'id_proveedor' => null // <--- CAMBIA EL 1 POR null AQUÍ
             ]);
 
 
