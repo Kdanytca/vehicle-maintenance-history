@@ -10,12 +10,16 @@ class Mantenimiento extends Model
 
     protected $primaryKey = 'id_mantenimiento';
 
-   protected $fillable = [
-    'fecha_servicio',
-    'descripcion_falla',
-    'mecanico_encargado',
-    'estado',
-    'costo_mano_obra',
-    'id_vehiculo'
-];
+    protected $fillable = [
+        'fecha_servicio',
+        'descripcion_falla',
+        'estado',
+        'costo_mano_obra',
+        'id_vehiculo'
+    ];
+
+    public function vehiculo()
+    {
+        return $this->belongsTo(Vehiculo::class, 'id_vehiculo', 'id_vehiculo');
+    }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ControllerLogin;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\MantenimientoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\RepuestoController;
@@ -111,3 +112,7 @@ Route::post('/repuestos/cargar-pdf', [RepuestoController::class, 'storeFromPdf']
 // Rutas para el módulo de alertas y trazabilidad de notificaciones
 Route::get('/alertas', [RepuestoController::class, 'alertas'])->name('notificaciones.index');
 Route::post('/notificaciones/enviar', [RepuestoController::class, 'enviarNotificacion'])->name('notificaciones.enviar');
+// CRUD METENIMIENTO
+// Módulo de mantenimientos
+Route::resource('mantenimientos', MantenimientoController::class);
+
