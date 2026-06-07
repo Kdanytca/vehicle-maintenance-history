@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 
 class VehiculoController extends Controller
 {
+    public function index()
+{
+    $vehiculos = Vehiculo::with('propietario')->get();
+    return view('vehiculos.index', compact('vehiculos'));
+}
     public function create()
     {
         return view('vehiculos.create');
