@@ -25,9 +25,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', ControllerLogin::class);
 });
 
-Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda']);
-Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar']);
-
 Route::get('/reportes/placa', [VehiculoController::class, 'formReporte']);
 Route::get('/reportes/placa/buscar', [VehiculoController::class, 'reportePorPlaca']);
 
@@ -54,7 +51,7 @@ Route::middleware('auth')->group(function () {
 // MODULO DE GESTIÓN DE USUARIOS (SOLO ADMIN)
 // ==========================================
 
-Route::middleware(['auth'])->prefix('admin')->name('usuarios.')->group(function () {
+Route::middleware(['auth', 'solo.admin'])->prefix('admin')->name('usuarios.')->group(function () {
     Route::get('/usuarios', \App\Http\Controllers\Usuarios\ListarUsuariosController::class)->name('index');
     Route::get('/usuarios/crear', function () {
         $roles = \App\Models\Rol::all();
@@ -74,28 +71,48 @@ Route::middleware(['auth'])->prefix('admin')->name('usuarios.')->group(function 
 // 3. MÓDULO DE VEHÍCULOS
 // ==========================================
 
-Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda'])->name('vehiculos.busqueda');
-Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar'])->name('vehiculos.buscar');
+Route::middleware(['auth', 'check.permiso:ver_vehiculos'])->group(function () {
+    Route::get('/vehiculos/busqueda', [VehiculoController::class, 'busqueda'])->name('vehiculos.busqueda');
+    Route::get('/vehiculos/buscar', [VehiculoController::class, 'buscar'])->name('vehiculos.buscar');
+    Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
+});
 
-Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
-Route::get('/vehiculos/crear', [VehiculoController::class, 'create'])->name('vehiculos.create');
-Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
-
-// CRUD / Gestión base de repuestos
-Route::get('/repuestos', [RepuestoController::class, 'index'])->name('repuestos.index');
-Route::post('/repuestos/cargar-pdf', [RepuestoController::class, 'storeFromPdf'])->name('repuestos.storePdf');
-
-// Alertas y notificaciones
-Route::get('/alertas', [RepuestoController::class, 'alertas'])->name('notificaciones.index');
-Route::post('/notificaciones/enviar', [RepuestoController::class, 'enviarNotificacion'])->name('notificaciones.enviar');
-
-// Mantenimientos
-Route::resource('mantenimientos', MantenimientoController::class);
+Route::middleware(['auth', 'check.permiso:crear_vehiculos'])->group(function () {
+    Route::get('/vehiculos/crear', [VehiculoController::class, 'create'])->name('vehiculos.create');
+    Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
+});
 
 // ==========================================
-// MÓDULO DE ROLES Y PERMISOS
+// MÓDULO DE REPUESTOS
 // ==========================================
-Route::middleware(['auth'])->prefix('admin')->name('roles-permisos.')->group(function () {
+
+Route::middleware(['auth', 'check.permiso:ver_repuestos'])->group(function () {
+    Route::get('/repuestos', [RepuestoController::class, 'index'])->name('repuestos.index');
+    Route::post('/repuestos/cargar-pdf', [RepuestoController::class, 'storeFromPdf'])->name('repuestos.storePdf');
+});
+
+// ==========================================
+// MÓDULO DE ALERTAS
+// ==========================================
+
+Route::middleware(['auth', 'check.permiso:ver_alertas'])->group(function () {
+    Route::get('/alertas', [RepuestoController::class, 'alertas'])->name('notificaciones.index');
+    Route::post('/notificaciones/enviar', [RepuestoController::class, 'enviarNotificacion'])->name('notificaciones.enviar');
+});
+
+// ==========================================
+// MÓDULO DE MANTENIMIENTOS
+// ==========================================
+
+Route::middleware(['auth', 'check.permiso:ver_mantenimientos'])->group(function () {
+    Route::resource('mantenimientos', MantenimientoController::class);
+});
+
+// ==========================================
+// MÓDULO DE ROLES Y PERMISOS (SOLO ADMIN)
+// ==========================================
+
+Route::middleware(['auth', 'solo.admin'])->prefix('admin')->name('roles-permisos.')->group(function () {
     Route::get('/roles-permisos', [RolPermisoController::class, 'index'])->name('index');
     Route::post('/roles', [RolPermisoController::class, 'storeRol'])->name('store-rol');
     Route::delete('/roles/{id}', [RolPermisoController::class, 'destroyRol'])->name('destroy-rol');
@@ -107,6 +124,16 @@ Route::middleware(['auth'])->prefix('admin')->name('roles-permisos.')->group(fun
 // ==========================================
 // MÓDULO DE HISTORIAL DE VEHÍCULO
 // ==========================================
-Route::middleware(['auth'])->group(function () {
+
+Route::middleware(['auth', 'check.permiso:ver_historial'])->group(function () {
     Route::get('/historial-vehiculo', [HistorialVehiculoController::class, 'index'])->name('historial-vehiculo.index');
+});
+
+// ==========================================
+// MÓDULO DE REPORTES
+// ==========================================
+
+Route::middleware(['auth', 'check.permiso:ver_reportes'])->group(function () {
+    Route::get('/reportes/placa', [VehiculoController::class, 'formReporte'])->name('reportes.placa');
+    Route::get('/reportes/placa/buscar', [VehiculoController::class, 'reportePorPlaca'])->name('reportes.buscar');
 });
