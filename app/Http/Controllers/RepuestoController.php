@@ -11,23 +11,24 @@ use Illuminate\Support\Facades\Storage;
 
 class RepuestoController extends BaseController
 {
-    // Requerimiento A: Ver repuestos con trazabilidad e historial en el Dashboard SPA
+    // Pantalla A: Ver únicamente repuestos con su factura asociada
     public function index()
     {
-        // Cargamos los repuestos con la info de su factura asociada (Eager Loading)
         $repuestos = Repuesto::with('factura')->get();
-
-        // Cargamos las últimas alertas/notificaciones indexadas para la vista lateral
-        $notificaciones = Notificacion::orderBy('id_notificacion', 'desc')->get();
-
-        // Retornamos tu vista (basada en el árbol de carpetas que pasaste)
-        return view('repuestos.index', compact('repuestos', 'notificaciones'));
+        return view('repuestos.index', compact('repuestos'));
     }
 
-    // Requerimiento B: Registrar repuesto y datos de facturación procesando el PDF
+    // Pantalla B: Módulo exclusivo de Alertas y Trazabilidad de Notificaciones
+    public function alertas()
+    {
+        $notificaciones = Notificacion::orderBy('id_notificacion', 'desc')->get();
+        return view('repuestos.alertas', compact('notificaciones'));
+    }
+
+    // Requerimiento B: Registrar repuesto y datos de facturación procesando el PDF REAL
     public function storeFromPdf(Request $request)
     {
-        // Validaciones estrictas según los tipos de datos de tus columnas
+        // Validaciones del archivo y los campos numéricos de auditoría
         $request->validate([
             'comprobante_pdf' => 'required|mimes:pdf|max:5120',
             'cantidad_recibida' => 'required|integer|min:1',
@@ -35,39 +36,70 @@ class RepuestoController extends BaseController
         ]);
 
         try {
-            // Guardar el archivo PDF en el disco local ('storage/app/public/facturas')
-            $path = $request->file('comprobante_pdf')->store('facturas', 'public');
+            // 1. Guardar el archivo PDF real en storage/app/public/facturas
+            $file = $request->file('comprobante_pdf');
+            $path = $file->store('facturas', 'public');
 
-            // Simulación de extracción OCR basada en los datos reales del UI que nos mandaste
-            $numFacturaSimulado = 'FAC-' . rand(8000, 9999);
-            $nombrePiezaSimulado = 'Pastillas de Freno Cerámicas Delanteras Premium';
-            $codigoPiezaSimulado = 'REP-' . rand(2000, 4000) . '-A';
+            // 2. PARSEAR EL PDF (Extraer texto puro del archivo)
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdfDoc = $parser->parseFile(storage_path('app/public/' . $path));
+            $text = $pdfDoc->getText(); // Guarda todo el texto de la factura en esta variable
 
+            // 3. EXTRACCIÓN MEDIANTE EXPRESIONES REGULARES (Misma lógica de celdas de Excel)
+
+            // Buscar número de factura (Patrón: busca texto que empiece con FAC- seguido de números)
+            $numeroFactura = 'FAC-INDETERMINADO';
+            if (preg_match('/FAC-\d+/', $text, $matches)) {
+                $numeroFactura = $matches[0];
+            }
+
+            // Buscar código de pieza (Patrón: busca texto que empiece con REP- seguido de números y una letra)
+            $codigoPieza = 'REP-GENERICO';
+            if (preg_match('/REP-\d+-[A-Z]/', $text, $matches)) {
+                $codigoPieza = $matches[0];
+            }
+
+            // Busca la sección del nombre en tu RepuestoController.php y reemplázala por esta:
+            // Buscar descripción del repuesto
+            $nombrePieza = 'Pieza Automotriz No Identificada';
+            if (preg_match('/Filtro de Aceite [^\n]+|Pastillas de Freno [^\n]+|Cambio de Aceite [^\n]+/i', $text, $matches)) {
+                $nombrePieza = trim($matches[0]);
+            } else {
+                if (preg_match('/' . preg_quote($codigoPieza, '/') . '\s+([^\n]+)/', $text, $matches)) {
+                    $nombrePieza = trim($matches[1]);
+                }
+            }
+            // Si el texto contiene tabulaciones, lo picamos y nos quedamos solo con la primera parte (el nombre real)
+            if (strpos($nombrePieza, "\t") !== false) {
+                $partes = explode("\t", $nombrePieza);
+                $nombrePieza = trim($partes[0]);
+            }
+
+
+            // Datos de los inputs del modal
             $costoUnitario = $request->input('costo_unitario');
             $cantidad = $request->input('cantidad_recibida');
             $montoTotal = $costoUnitario * $cantidad;
 
-            // 1. Insertar en la tabla 'facturas'
+            // 4. Registrar en la tabla 'facturas' de MySQL con la data del PDF
             $factura = Factura::create([
-                'numero_factura' => $numFacturaSimulado,
+                'numero_factura' => $numeroFactura,
                 'fecha_emision' => now()->format('Y-m-d'),
                 'monto_total' => $montoTotal,
                 'ruta_pdf_almacenamiento' => $path
             ]);
 
-            // 2. Insertar en la tabla 'repuestos' vinculando el id_factura generado
+            // 5. Registrar en la tabla 'repuestos' amarrando el id_factura
             $repuesto = Repuesto::create([
-                'nombre_pieza' => $nombrePiezaSimulado,
-                'codigo_pieza' => $codigoPiezaSimulado,
+                'nombre_pieza' => $nombrePieza,
+                'codigo_pieza' => $codigoPieza,
                 'costo_unitario' => $costoUnitario,
                 'id_factura' => $factura->id_factura
-                //'id_proveedor' => null // <--- CAMBIA EL 1 POR null AQUÍ
             ]);
-
 
             return response()->json([
                 'success' => true,
-                'message' => '¡Factura vinculada y stock actualizado exitosamente!',
+                'message' => '¡PDF leído y stock actualizado exitosamente!',
                 'data' => [
                     'id_repuesto' => $repuesto->id_repuesto,
                     'codigo_pieza' => $repuesto->codigo_pieza,
@@ -80,7 +112,7 @@ class RepuestoController extends BaseController
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error en base de datos al procesar la factura: ' . $e->getMessage()
+                'message' => 'Error al procesar el mapeo de texto del PDF: ' . $e->getMessage()
             ], 500);
         }
     }

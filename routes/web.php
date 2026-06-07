@@ -104,7 +104,10 @@ Route::get('/vehiculos/crear', [VehiculoController::class, 'create'])->name('veh
 Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
 
 
-
+// CRUD / Gestión base de repuestos
 Route::get('/repuestos', [RepuestoController::class, 'index'])->name('repuestos.index');
 Route::post('/repuestos/cargar-pdf', [RepuestoController::class, 'storeFromPdf'])->name('repuestos.storePdf');
+
+// Rutas para el módulo de alertas y trazabilidad de notificaciones
+Route::get('/alertas', [RepuestoController::class, 'alertas'])->name('notificaciones.index');
 Route::post('/notificaciones/enviar', [RepuestoController::class, 'enviarNotificacion'])->name('notificaciones.enviar');

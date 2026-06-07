@@ -46,20 +46,19 @@
                 </div>
             </div>
             <nav class="p-4 space-y-1">
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                <!--<a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard
-                </a>
+                </a> -->
                 <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all bg-sky-500/10 text-sky-400 border border-sky-500/20 justify-between">
                     <span class="flex items-center gap-3"><i class="fa-solid fa-cubes w-5 text-center"></i> Repuestos</span>
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 justify-between">
+                <a href="{{ route('notificaciones.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 justify-between">
                     <span class="flex items-center gap-3"><i class="fa-solid fa-envelope w-5 text-center"></i> Alertas</span>
-                    <span class="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-amber-500/30">Novedades</span>
                 </a>
             </nav>
         </div>
         <div class="p-4 border-t border-slate-800 bg-[#172033]">
-            <p class="text-xs font-semibold text-slate-200">Óscar Pérez</p>
+            <p class="text-xs font-semibold text-slate-200">Administrador</p>
             <p class="text-[10px] text-slate-400">Administrador</p>
         </div>
     </aside>
@@ -78,7 +77,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-2xl font-bold text-white tracking-tight">Inventario de Repuestos y Reposición</h1>
-                        <p class="text-sm text-slate-400">Control de stock mínimo, garantías asociadas y vinculación de comprobantes de compra desde MySQL.</p>
+                        <p class="text-sm text-slate-400">Registro de Repuestos a través de facturas de compra.</p>
                     </div>
                     <button onclick="openModal('modal-repuesto')" class="bg-sky-500 hover:bg-sky-600 transition-all text-slate-900 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 shadow-md cursor-pointer">
                         <i class="fa-solid fa-file-arrow-up text-xs"></i> Cargar Factura de Compra
@@ -123,168 +122,109 @@
                 </div>
             </div>
 
-            <hr class="border-slate-800">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-[#1e293b] p-5 rounded-xl border border-slate-800 space-y-4 shadow-sm">
-                    <h3 class="font-bold text-slate-200 text-sm tracking-wide uppercase border-b border-slate-800 pb-2">
-                        <i class="fa-solid fa-pen-nib text-sky-400 mr-1.5"></i> Configurar Correo Manual
-                    </h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Destinatario (Cliente)</label>
-                            <input type="email" id="correo-cliente" value="juan.mendoza@email.com" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-300 focus:outline-none focus:border-sky-500">
+
+            <div id="modal-repuesto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+                <div class="bg-[#1e293b] border border-slate-800 w-full max-w-md rounded-xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300">
+                    <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+                        <h3 class="font-bold text-white text-base">Cargar Repuestos vía Factura PDF</h3>
+                        <button onclick="closeModal('modal-repuesto')" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="border-2 border-dashed border-slate-700 hover:border-sky-500/50 rounded-xl p-6 text-center cursor-pointer transition-all bg-slate-900/30 relative">
+                            <input type="file" id="comprobante_file" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer">
+                            <i class="fa-solid fa-file-pdf text-3xl text-slate-500 mb-2"></i>
+                            <p class="text-xs font-medium text-slate-300">Selecciona o arrastra el archivo legal (.pdf)</p>
+                            <p class="text-[10px] text-slate-500 mt-1">Tamaño máximo recomendado: 5MB</p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Asunto predefinido</label>
-                            <input type="text" id="asunto-cliente" value="Aviso de Revisión Preventiva - SGA" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-300 focus:outline-none focus:border-sky-500">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Cantidad Recibida *</label>
+                                <input type="number" id="input-cantidad" placeholder="0" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1">Costo Unitario ($) *</label>
+                                <input type="text" id="input-costo" placeholder="0.00" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Mensaje o Cuerpo de Plantilla</label>
-                            <textarea id="mensaje-cliente" rows="4" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-300 focus:outline-none focus:border-sky-500 font-sans">Estimado cliente, le saludamos del taller mecánico para informarle que su vehículo está listo...</textarea>
-                        </div>
                     </div>
-                    <button onclick="enviarNotificacionMantenimiento()" class="w-full bg-sky-500 hover:bg-sky-600 text-slate-900 py-2 rounded-lg font-bold text-xs transition-all cursor-pointer">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> Despachar Correo Manual
-                    </button>
-                </div>
-
-                <div class="bg-[#1e293b] p-5 rounded-xl border border-slate-800 lg:col-span-2 space-y-3 shadow-sm">
-                    <h3 class="font-bold text-slate-200 text-sm tracking-wide uppercase border-b border-slate-800 pb-2">
-                        <i class="fa-solid fa-clock-rotate-left text-amber-400 mr-1.5"></i> Registro de Trazabilidad de Notificaciones
-                    </h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800">
-                                    <th class="p-3">Fecha / Hora</th>
-                                    <th class="p-3">Tipo</th>
-                                    <th class="p-3">Destinatario</th>
-                                    <th class="p-3">Estado de Envío</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-notificaciones-body" class="divide-y divide-slate-800/50 text-slate-300">
-                                @foreach($notificaciones as $noti)
-                                <tr>
-                                    <td class="p-3 font-mono">{{ $noti->fecha_envio ?? $noti->created_at }}</td>
-                                    <td class="p-3">
-                                        <span class="bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/20 font-medium font-mono text-[10px]">
-                                            {{ $noti->tipo_envio }}
-                                        </span>
-                                    </td>
-                                    <td class="p-3">{{ $noti->destinatario }}</td>
-                                    <td class="p-3 text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1 text-[10px]"></i>Exitoso</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="px-6 py-4 bg-slate-900 border-t border-slate-800 flex justify-end gap-3">
+                        <button onclick="closeModal('modal-repuesto')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg">Cancelar</button>
+                        <button onclick="procesarFacturaPdf()" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-slate-900 text-xs font-bold rounded-lg cursor-pointer">Vincular al Stock</button>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <div id="modal-repuesto" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#1e293b] border border-slate-800 w-full max-w-md rounded-xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300">
-            <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-                <h3 class="font-bold text-white text-base">Cargar Repuestos vía Factura PDF</h3>
-                <button onclick="closeModal('modal-repuesto')" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div class="border-2 border-dashed border-slate-700 hover:border-sky-500/50 rounded-xl p-6 text-center cursor-pointer transition-all bg-slate-900/30 relative">
-                    <input type="file" id="comprobante_file" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <i class="fa-solid fa-file-pdf text-3xl text-slate-500 mb-2"></i>
-                    <p class="text-xs font-medium text-slate-300">Selecciona o arrastra el archivo legal (.pdf)</p>
-                    <p class="text-[10px] text-slate-500 mt-1">Tamaño máximo recomendado: 5MB</p>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Cantidad Recibida *</label>
-                        <input type="number" id="input-cantidad" placeholder="0" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Costo Unitario ($) *</label>
-                        <input type="text" id="input-costo" placeholder="0.00" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-                    </div>
-                </div>
-            </div>
-            <div class="px-6 py-4 bg-slate-900 border-t border-slate-800 flex justify-end gap-3">
-                <button onclick="closeModal('modal-repuesto')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg">Cancelar</button>
-                <button onclick="procesarFacturaPdf()" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-slate-900 text-xs font-bold rounded-lg cursor-pointer">Vincular al Stock</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
-    <script>
-        iziToast.settings({
-            timeout: 4000,
-            position: 'topRight',
-            transitionIn: 'fadeInDown',
-            transitionOut: 'fadeOutUp'
-        });
-
-
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.querySelector('div > div').classList.remove('scale-95');
-            }, 10);
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.add('opacity-0');
-            modal.querySelector('div > div').classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        // ACCIÓN AJAX: CARGAR FACTURA PDF Y REPUESTO
-        function procesarFacturaPdf() {
-            let pdfFile = document.getElementById('comprobante_file');
-            let cantidad = document.getElementById('input-cantidad').value;
-            let costo = document.getElementById('input-costo').value;
-
-            if (!pdfFile.files[0] || !cantidad || !costo) {
-                iziToast.warning({
-                    title: 'Atención',
-                    message: 'Por favor complete todos los campos requeridos.'
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+            <script>
+                iziToast.settings({
+                    timeout: 4000,
+                    position: 'topRight',
+                    transitionIn: 'fadeInDown',
+                    transitionOut: 'fadeOutUp'
                 });
-                return;
-            }
 
-            iziToast.info({
-                title: 'Conectando',
-                message: 'Sincronizando con base de datos MySQL...',
-                timeout: 1200
-            });
 
-            let form = new FormData();
-            form.append('comprobante_pdf', pdfFile.files[0]);
-            form.append('cantidad_recibida', cantidad);
-            form.append('costo_unitario', costo);
-            form.append('_token', '{{ csrf_token() }}');
+                function openModal(modalId) {
+                    const modal = document.getElementById(modalId);
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modal.classList.remove('opacity-0');
+                        modal.querySelector('div > div').classList.remove('scale-95');
+                    }, 10);
+                }
 
-            fetch("{{ route('repuestos.storePdf') }}", {
-                    method: 'POST',
-                    body: form
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        closeModal('modal-repuesto');
-                        iziToast.success({
-                            title: 'Éxito',
-                            message: data.message
+                function closeModal(modalId) {
+                    const modal = document.getElementById(modalId);
+                    modal.classList.add('opacity-0');
+                    modal.querySelector('div > div').classList.add('scale-95');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 300);
+                }
+
+                // ACCIÓN AJAX: CARGAR FACTURA PDF Y REPUESTO
+                function procesarFacturaPdf() {
+                    let pdfFile = document.getElementById('comprobante_file');
+                    let cantidad = document.getElementById('input-cantidad').value;
+                    let costo = document.getElementById('input-costo').value;
+
+                    if (!pdfFile.files[0] || !cantidad || !costo) {
+                        iziToast.warning({
+                            title: 'Atención',
+                            message: 'Por favor complete todos los campos requeridos.'
                         });
+                        return;
+                    }
 
-                        // Agregar fila en caliente a la tabla
-                        let tbody = document.getElementById('table-repuestos-body');
-                        let fila = `<tr class="hover:bg-slate-800/30 transition-colors bg-sky-500/5">
+                    iziToast.info({
+                        title: 'Conectando',
+                        message: 'Sincronizando con base de datos MySQL...',
+                        timeout: 1200
+                    });
+
+                    let form = new FormData();
+                    form.append('comprobante_pdf', pdfFile.files[0]);
+                    form.append('cantidad_recibida', cantidad);
+                    form.append('costo_unitario', costo);
+                    form.append('_token', '{{ csrf_token() }}');
+
+                    fetch("{{ route('repuestos.storePdf') }}", {
+                            method: 'POST',
+                            body: form
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                closeModal('modal-repuesto');
+                                iziToast.success({
+                                    title: 'Éxito',
+                                    message: data.message
+                                });
+
+                                // Agregar fila en caliente a la tabla
+                                let tbody = document.getElementById('table-repuestos-body');
+                                let fila = `<tr class="hover:bg-slate-800/30 transition-colors bg-sky-500/5">
                         <td class="p-4 font-mono text-slate-400">${data.data.codigo_pieza}</td>
                         <td class="p-4 text-white font-medium">${data.data.nombre_pieza}</td>
                         <td class="p-4 font-mono">${data.data.costo_unitario}</td>
@@ -292,65 +232,19 @@
                             <a href="${data.data.ruta_pdf}" target="_blank"><i class="fa-solid fa-paperclip mr-1 text-xs"></i>${data.data.factura}.pdf</a>
                         </td>
                     </tr>`;
-                        tbody.insertAdjacentHTML('afterbegin', fila);
-                    } else {
-                        iziToast.error({
+                                tbody.insertAdjacentHTML('afterbegin', fila);
+                            } else {
+                                iziToast.error({
+                                    title: 'Error',
+                                    message: data.message
+                                });
+                            }
+                        }).catch(() => iziToast.error({
                             title: 'Error',
-                            message: data.message
-                        });
-                    }
-                }).catch(() => iziToast.error({
-                    title: 'Error',
-                    message: 'Fallo de conexión al servidor.'
-                }));
-        }
-
-        // ACCIÓN AJAX: ENVIAR NOTIFICACIÓN DE SERVICIO COMPLETADO
-        function enviarNotificacionMantenimiento() {
-            let payload = {
-                destinatario: document.getElementById('correo-cliente').value,
-                asunto: document.getElementById('asunto-cliente').value,
-                mensaje: document.getElementById('mensaje-cliente').value,
-                _token: '{{ csrf_token() }}'
-            };
-
-            fetch("{{ route('notificaciones.enviar') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        iziToast.success({
-                            title: 'Enviado',
-                            message: 'Notificación registrada e iziToast activo.',
-                            icon: 'fa-solid fa-paper-plane'
-                        });
-
-                        let tbodyNoti = document.getElementById('table-notificaciones-body');
-                        let filaNoti = `<tr>
-                        <td class="p-3 font-mono">${data.notificacion.fecha}</td>
-                        <td class="p-3"><span class="bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/20 font-medium text-[10px]">AUTOMÁTICO</span></td>
-                        <td class="p-3">${data.notificacion.destinatario}</td>
-                        <td class="p-3 text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1 text-[10px]"></i>Exitoso</td>
-                    </tr>`;
-                        tbodyNoti.insertAdjacentHTML('afterbegin', filaNoti);
-                    } else {
-                        iziToast.error({
-                            title: 'Error',
-                            message: data.message
-                        });
-                    }
-                }).catch(() => iziToast.error({
-                    title: 'Error',
-                    message: 'Fallo al despachar alerta.'
-                }));
-        }
-    </script>
+                            message: 'Fallo de conexión al servidor.'
+                        }));
+                }
+            </script>
 </body>
 
 </html>
