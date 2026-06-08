@@ -46,4 +46,12 @@ class Usuario extends Authenticatable
     {
         return $this->belongsTo(Rol::class, 'id_rol', 'id_rol');
     }
+
+    /**
+     * Obtiene todos los mantenimientos encargados a este usuario.
+     */
+    public function mantenimientos()
+    {
+        return $this->hasMany(Mantenimiento::class, 'id_usuario_encargado', 'id_usuario');
+    }
 }

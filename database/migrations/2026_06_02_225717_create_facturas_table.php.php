@@ -1,7 +1,5 @@
 <?php
 
-// 2026_05_27_225717_create_facturas_table.php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +14,14 @@ return new class extends Migration
             $table->date('fecha_emision')->comment('Fecha en la que se emitió la factura');
             $table->decimal('monto_total', 10, 2)->comment('Costo total reflejado en el documento');
             $table->string('ruta_pdf_almacenamiento', 255)->comment('Ruta del archivo PDF almacenado en el servidor o la nube');
+
+            // 🌟 SOLUCIÓN: Usamos foreignIdFor apuntando al Modelo o definimos el tipo exacto
+            // Opción A (Recomendada y más limpia):
+            $table->foreignId('id_vehiculo')
+                ->constrained('vehiculos', 'id_vehiculo')
+                ->onDelete('cascade')
+                ->comment('ID del vehículo al que se le asocia esta factura');
+
             $table->timestamps();
         });
     }

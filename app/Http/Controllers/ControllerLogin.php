@@ -30,13 +30,17 @@ class ControllerLogin extends Controller
                 return back()->withErrors(['login' => 'Credenciales incorrectas o usuario inactivo']);
             }
 
-            $rolNombre = $user->rol->nombre_rol ?? 'mecanico';
+            // Obtenemos el nombre del rol asignado al usuario
+            $rolNombre = $user->rol->nombre_rol ?? null;
 
-            return match ($rolNombre) {
-                'admin' => redirect('/auth/admin'),
-                'mecanico' => redirect('/auth/mecanico'),
-                default => redirect('/dashboard')
-            };
+            // Si el usuario tiene un rol válido en el sistema (sea admin, mecanico, u otro autorizado)
+            if (in_array($rolNombre, ['admin', 'mecanico'])) {
+                return redirect()->route('vehiculos.index');
+            }
+
+            // Si por algún motivo tiene un rol desconocido o nulo, bloqueamos preventivamente
+            Auth::logout();
+            return back()->withErrors(['login' => 'Tu rol no tiene permisos para acceder al sistema.']);
         }
 
         Log::warning('Intento de login fallido', [

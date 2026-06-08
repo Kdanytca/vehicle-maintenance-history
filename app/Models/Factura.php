@@ -16,10 +16,21 @@ class Factura extends Model
         'numero_factura',
         'fecha_emision',
         'monto_total',
-        'ruta_pdf_almacenamiento'
+        'ruta_pdf_almacenamiento',
+        'id_vehiculo'
     ];
 
-    // Relación: Una factura puede amparar muchos repuestos
+    /**
+     * Relación: Una factura pertenece a un Vehículo.
+     */
+    public function vehiculo()
+    {
+        return $this->belongsTo(Vehiculo::class, 'id_vehiculo', 'id_vehiculo');
+    }
+
+    /**
+     * Relación: Una factura puede tener muchos repuestos asociados.
+     */
     public function repuestos()
     {
         return $this->hasMany(Repuesto::class, 'id_factura', 'id_factura');

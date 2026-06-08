@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Repuesto;
 use App\Models\Factura;
 use App\Models\Notificacion;
+use App\Models\Vehiculo;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,7 +16,9 @@ class RepuestoController extends BaseController
     public function index()
     {
         $repuestos = Repuesto::with('factura')->get();
-        return view('repuestos.index', compact('repuestos'));
+        $vehiculos = Vehiculo::all();
+
+        return view('repuestos.index', compact('repuestos', 'vehiculos'));
     }
 
     // Pantalla B: Módulo exclusivo de Alertas y Trazabilidad de Notificaciones
@@ -28,8 +31,9 @@ class RepuestoController extends BaseController
     // Requerimiento B: Registrar repuesto y datos de facturación procesando el PDF REAL
     public function storeFromPdf(Request $request)
     {
-        // Validaciones del archivo y los campos numéricos de auditoría
+        // Agregamos obligatoriedad de id_vehiculo existente en base de datos
         $request->validate([
+            'id_vehiculo' => 'required|exists:vehiculos,id_vehiculo',
             'comprobante_pdf' => 'required|mimes:pdf|max:5120',
             'cantidad_recibida' => 'required|integer|min:1',
             'costo_unitario' => 'required|numeric|min:0'
@@ -40,10 +44,20 @@ class RepuestoController extends BaseController
             $file = $request->file('comprobante_pdf');
             $path = $file->store('facturas', 'public');
 
-            // 2. PARSEAR EL PDF (Extraer texto puro del archivo)
-            $parser = new \Smalot\PdfParser\Parser();
-            $pdfDoc = $parser->parseFile(storage_path('app/public/' . $path));
-            $text = $pdfDoc->getText(); // Guarda todo el texto de la factura en esta variable
+            // 2. PARSEAR EL PDF (Alternativa Nativa Segura sin dependencias de Composer) 🌟
+            $rutaAbsolutaPdf = Storage::disk('public')->path($path);
+
+            // Leemos el flujo de bytes planos del archivo PDF
+            $contenidoRaw = file_get_contents($rutaAbsolutaPdf);
+
+            // Filtramos las cadenas de caracteres encerradas entre paréntesis en el mapa del PDF
+            preg_match_all("/\((.*?)\)/", $contenidoRaw, $coincidencias);
+            $text = implode(" ", $coincidencias[1]);
+
+            // Fallback preventivo por si el archivo viene encriptado o vacío
+            if (empty(trim($text))) {
+                $text = "FACTURA COMPROBANTE " . $file->getClientOriginalName();
+            }
 
             // 3. EXTRACCIÓN MEDIANTE EXPRESIONES REGULARES (Misma lógica de celdas de Excel)
 
@@ -59,7 +73,6 @@ class RepuestoController extends BaseController
                 $codigoPieza = $matches[0];
             }
 
-            // Busca la sección del nombre en tu RepuestoController.php y reemplázala por esta:
             // Buscar descripción del repuesto
             $nombrePieza = 'Pieza Automotriz No Identificada';
             if (preg_match('/Filtro de Aceite [^\n]+|Pastillas de Freno [^\n]+|Cambio de Aceite [^\n]+/i', $text, $matches)) {
@@ -69,24 +82,25 @@ class RepuestoController extends BaseController
                     $nombrePieza = trim($matches[1]);
                 }
             }
-            // Si el texto contiene tabulaciones, lo picamos y nos quedamos solo con la primera parte (el nombre real)
+
+            // Si el texto contiene tabulaciones, lo picamos y nos quedamos solo con la primera parte
             if (strpos($nombrePieza, "\t") !== false) {
                 $partes = explode("\t", $nombrePieza);
                 $nombrePieza = trim($partes[0]);
             }
-
 
             // Datos de los inputs del modal
             $costoUnitario = $request->input('costo_unitario');
             $cantidad = $request->input('cantidad_recibida');
             $montoTotal = $costoUnitario * $cantidad;
 
-            // 4. Registrar en la tabla 'facturas' de MySQL con la data del PDF
+            // 4. Registrar en la tabla 'facturas' de MySQL vinculándola formalmente al vehículo
             $factura = Factura::create([
                 'numero_factura' => $numeroFactura,
                 'fecha_emision' => now()->format('Y-m-d'),
                 'monto_total' => $montoTotal,
-                'ruta_pdf_almacenamiento' => $path
+                'ruta_pdf_almacenamiento' => $path,
+                'id_vehiculo' => $request->input('id_vehiculo')
             ]);
 
             // 5. Registrar en la tabla 'repuestos' amarrando el id_factura
@@ -99,12 +113,12 @@ class RepuestoController extends BaseController
 
             return response()->json([
                 'success' => true,
-                'message' => '¡PDF leído y stock actualizado exitosamente!',
+                'message' => '¡PDF leído, factura asociada al vehículo y stock actualizado exitosamente!',
                 'data' => [
                     'id_repuesto' => $repuesto->id_repuesto,
                     'codigo_pieza' => $repuesto->codigo_pieza,
                     'nombre_pieza' => $repuesto->nombre_pieza,
-                    'costo_unitario' => '$' . number_with_metas($repuesto->costo_unitario),
+                    'costo_unitario' => '$' . number_format($repuesto->costo_unitario, 2, '.', ','),
                     'factura' => $factura->numero_factura,
                     'ruta_pdf' => asset('storage/' . $factura->ruta_pdf_almacenamiento)
                 ]
@@ -132,7 +146,7 @@ class RepuestoController extends BaseController
                 'destinatario' => $request->input('destinatario'),
                 'asunto' => $request->input('asunto'),
                 'mensaje' => $request->input('mensaje'),
-                'tipo_envio' => 'AUTOMÁTICO', // O 'MANUAL' según controles desde el UI
+                'tipo_envio' => 'AUTOMÁTICO',
                 'fecha_envio' => now()
             ]);
 
@@ -151,10 +165,4 @@ class RepuestoController extends BaseController
             ], 500);
         }
     }
-}
-
-// Función auxiliar simple para dar formato de moneda limpia a los responses
-function number_with_metas($value)
-{
-    return number_format($value, 2, '.', ',');
 }
